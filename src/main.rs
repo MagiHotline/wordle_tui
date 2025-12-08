@@ -1,5 +1,33 @@
 use wordle_tui::{check_word, get_daily_word, Color};
+use color_eyre::Result;
+use crossterm::event::{self, Event};
+use ratatui::{DefaultTerminal, Frame};
 
+mod app;
+
+fn main() -> Result<()> {
+    color_eyre::install()?;
+    let terminal = ratatui::init();
+    let result = App::default().run(terminal);
+    ratatui::restore();
+    result
+}
+
+
+fn run(mut terminal: DefaultTerminal) -> Result<()> {
+    loop {
+        terminal.draw(render)?;
+        if matches!(event::read()?, Event::Key(_)) {
+            break Ok(());
+        }
+    }
+}
+
+fn render(frame: &mut Frame) {
+    frame.render_widget("hello world", frame.area());
+}
+
+/*
 #[tokio::main]
 async fn main() {
 
@@ -30,3 +58,4 @@ async fn main() {
 
     println!("The word was: {}", word);
 }
+*/

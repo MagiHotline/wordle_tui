@@ -1,13 +1,28 @@
 /* Library for the Wordle App */
 
+use std::default;
+
 use reqwest::*;
 use chrono::{Datelike};
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub enum Color {
     Green,
     Yellow,
-    Gray
+    #[default] Gray
+}
+
+#[derive(Debug, Default, Copy, Clone)]
+pub struct WordleBox {
+    pub letter: char,
+    pub color: Color
+}
+
+impl WordleBox {
+
+    pub fn new(c: char, color: Color) -> WordleBox {
+        WordleBox { letter: c, color }
+    }
 }
 
 pub async fn get_daily_word() -> std::result::Result<String, reqwest::Error> {
@@ -40,16 +55,16 @@ pub async fn get_daily_word() -> std::result::Result<String, reqwest::Error> {
 }
 
 
-pub fn check_word(input : &str, word : &str) -> Vec<Color>
+pub fn check_word(input : &str, word : &str) -> Vec<WordleBox>
 {
     input.trim().chars().zip(word.chars())
         .map(|(i, w)| {
             if i == w {
-                return Color::Green
+                return WordleBox::new(i, Color::Green)
             } else if word.contains(i) {
-                return Color::Yellow
+                return WordleBox::new(i, Color::Yellow)
             } else {
-                return Color::Gray
+                return WordleBox::new(i, Color::Gray)
             }
         })
         .collect()
