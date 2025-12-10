@@ -60,7 +60,7 @@ impl StatefulWidget for Grid {
 
                     Paragraph::new(Text::from(format!("{}", current_cell.letter
                             .unwrap_or(' ')))
-                            .style(Style::new().fg(current_cell.color.into())))
+                            .style(Style::new().fg(tailwind::WHITE)))
                         .block(Block::bordered())
                         .centered()
                         .style(Style::new().fg(current_cell.color.into()))
@@ -121,7 +121,7 @@ impl App {
      }
 
      fn render_footer(&self, frame: &mut Frame, area: Rect) {
-         let info_footer = Paragraph::new(Text::from(INFO_TEXT))
+         let info_footer = Paragraph::new(INFO_TEXT)
              .wrap(ratatui::widgets::Wrap { trim: false })
              .style(
                  Style::new()

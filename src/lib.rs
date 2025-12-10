@@ -60,28 +60,40 @@ impl Default for WordleGrid {
 impl WordleGrid {
 
     pub fn append_char(&mut self, c : char) {
-        if self.first_free.1 < 5 {
+        if self.first_free.1 <= 4 {
             self.grid[self.first_free.0][self.first_free.1] = WordleBox::new(Some(c), Color::Blank);
             self.first_free.1 += 1;
         }
     }
 
     pub fn remove_char(&mut self) {
-        self.grid[self.first_free.0][self.first_free.1] = WordleBox::new(None, Color::Blank);
-        self.first_free.1 = self.first_free.1.saturating_sub(1);
+        if self.first_free.0 < 6 {
+            self.first_free.1 = self.first_free.1.saturating_sub(1);
+            self.grid[self.first_free.0][self.first_free.1] = WordleBox::new(None, Color::Blank);
+        }
+
     }
 
     pub fn send_word(&mut self, solution : &str) {
-        if self.first_free.0 < 6 {
+
+        // Cannot send word if its not long five characters
+        if self.first_free.1 == 5 {
+
             self.first_free.0 += 1;
+
+            let input = WordleBox::to_string(self.grid[self.first_free.0.saturating_sub(1)]);
+
+            // Insert the new word checked with the new colors
+            let checked_word = check_word(&input.to_lowercase(), solution);
+
+            self.grid[self.first_free.0.saturating_sub(1)] = checked_word;
+            // Go to the next row
+            self.first_free.1 = 0;
+
+            if checked_word.iter().all(|&c| c.color == Color::Green) {
+
+            }
         }
-
-        let input = WordleBox::to_string(self.grid[self.first_free.0]);
-
-        if check_word(&input, solution).iter().all(|&c| c.color == Color::Green) {
-            println!("You won!");
-        }
-
     }
 }
 
@@ -115,9 +127,9 @@ pub async fn get_daily_word() -> std::result::Result<String, reqwest::Error> {
 }
 
 
-pub fn check_word(input : &str, word : &str) -> Vec<WordleBox>
+pub fn check_word(input : &str, word : &str) -> [WordleBox; 5]
 {
-    input.trim().chars().zip(word.chars())
+    let wboxes : Vec<WordleBox> = input.trim().chars().zip(word.chars())
         .map(|(i, w)| {
             if i == w {
                 return WordleBox::new(Some(i), Color::Green)
@@ -127,5 +139,13 @@ pub fn check_word(input : &str, word : &str) -> Vec<WordleBox>
                 return WordleBox::new(Some(i), Color::Gray)
             }
         })
-        .collect()
+        .collect();
+
+    let boxed_slice = wboxes.into_boxed_slice();
+    let boxed_array: Box<[WordleBox; 5]> = match boxed_slice.try_into() {
+        Ok(ba) => ba,
+        Err(o) => panic!("Expected a Vef of WordleBoxes of length {} but it was {}", 5, o.len()),
+    };
+
+    *boxed_array
 }
