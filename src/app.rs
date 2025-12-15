@@ -143,7 +143,7 @@ impl App {
             .pixel_size(PixelSize::Quadrant)
             .style(Style::new().fg(Color::White))
             .centered()
-            .lines(vec!["Wordle".into()])
+            .lines(vec!["WordTUI".into()])
             .build();
 
         frame.render_widget(header, area);
