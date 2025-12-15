@@ -59,7 +59,7 @@ impl Default for WordleGrid {
 
 impl WordleGrid {
     pub fn append_char(&mut self, c: char) {
-        if self.first_free.1 <= 4 {
+        if self.first_free.1 <= 4 && self.first_free.0 <= 5 {
             self.grid[self.first_free.0][self.first_free.1] = WordleBox::new(Some(c), Color::Blank);
             self.first_free.1 += 1;
         }
